@@ -9,8 +9,16 @@ import (
 // Dialer is a shared fastdialer instance for host DNS resolution
 var Dialer *fastdialer.Dialer
 
+var debug bool
+
+func IsDebug() bool {
+	return debug
+}
+
 // Init creates the Dialer instance based on user configuration
 func Init(options *types.Options) error {
+	debug = options.Debug
+
 	opts := fastdialer.DefaultOptions
 	if options.SystemResolvers {
 		opts.EnableFallback = true

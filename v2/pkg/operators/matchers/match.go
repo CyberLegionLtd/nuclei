@@ -2,11 +2,15 @@ package matchers
 
 import (
 	"encoding/hex"
+	"strconv"
 	"strings"
+
+	"github.com/projectdiscovery/nuclei/v2/pkg/operators/common/context"
+	"github.com/projectdiscovery/nuclei/v2/pkg/protocols/common/protocolstate"
 )
 
 // MatchStatusCode matches a status code check against a corpus
-func (m *Matcher) MatchStatusCode(statusCode int) bool {
+func (m *Matcher) MatchStatusCode(statusCode int) *context.Context {
 	// Iterate over all the status codes accepted as valid
 	//
 	// Status codes don't support AND conditions.
@@ -16,13 +20,13 @@ func (m *Matcher) MatchStatusCode(statusCode int) bool {
 			continue
 		}
 		// Return on the first match.
-		return true
+		return m.contextWithReason(true, strconv.Itoa(status))
 	}
-	return false
+	return m.contextWithReason(false, "")
 }
 
 // MatchSize matches a size check against a corpus
-func (m *Matcher) MatchSize(length int) bool {
+func (m *Matcher) MatchSize(length int) *context.Context {
 	// Iterate over all the sizes accepted as valid
 	//
 	// Sizes codes don't support AND conditions.
@@ -32,13 +36,15 @@ func (m *Matcher) MatchSize(length int) bool {
 			continue
 		}
 		// Return on the first match.
-		return true
+		return m.contextWithReason(true, strconv.Itoa(size))
 	}
-	return false
+	return m.contextWithReason(false, "")
 }
 
 // MatchWords matches a word check against a corpus.
-func (m *Matcher) MatchWords(corpus string) bool {
+func (m *Matcher) MatchWords(corpus string) *context.Context {
+	ctx := context.NewContext()
+
 	// Iterate over all the words accepted as valid
 	for i, word := range m.Words {
 		// Continue if the word doesn't match
@@ -46,23 +52,24 @@ func (m *Matcher) MatchWords(corpus string) bool {
 			// If we are in an AND request and a match failed,
 			// return false as the AND condition fails on any single mismatch.
 			if m.condition == ANDCondition {
-				return false
+				return ctx.AddSubContext(m.contextWithReason(false, word)).SetResult(false, "AND condition did not match")
 			}
 			// Continue with the flow since its an OR Condition.
 			continue
 		}
+		ctx.AddSubContext(m.contextWithReason(true, word))
 
 		// If the condition was an OR, return on the first match.
 		if m.condition == ORCondition {
-			return true
+			return ctx.SetResult(true, "OR Condition matched")
 		}
 
 		// If we are at the end of the words, return with true
 		if len(m.Words)-1 == i {
-			return true
+			return ctx.SetResult(true, "AND Condition matched")
 		}
 	}
-	return false
+	return m.contextWithReason(false, "")
 }
 
 // MatchRegex matches a regex check against a corpus
@@ -156,4 +163,29 @@ func (m *Matcher) MatchDSL(data map[string]interface{}) bool {
 		}
 	}
 	return false
+}
+
+// contextWithReason returns a condensed context reason structure for a matcher
+func (m *Matcher) contextWithReason(matched bool, value string) *context.Context {
+	if !protocolstate.IsDebug() && !matched {
+		return context.NewContext().SetResult(false, "")
+	}
+	builder := &strings.Builder{}
+
+	if m.Name != "" {
+		builder.WriteString(m.Name)
+		builder.WriteString(" ")
+	}
+	builder.WriteString(m.Type)
+	builder.WriteString(" matcher ")
+
+	ctx := context.NewContext()
+	if matched {
+		builder.WriteString(value)
+		builder.WriteString(" matched")
+	} else {
+		builder.WriteString(" did not match")
+	}
+	ctx.SetResult(matched, builder.String())
+	return ctx
 }

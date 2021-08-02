@@ -2,6 +2,7 @@ package operators
 
 import (
 	"github.com/pkg/errors"
+	"github.com/projectdiscovery/nuclei/v2/pkg/operators/common/context"
 	"github.com/projectdiscovery/nuclei/v2/pkg/operators/extractors"
 	"github.com/projectdiscovery/nuclei/v2/pkg/operators/matchers"
 )
@@ -105,6 +106,7 @@ func (r *Operators) Execute(data map[string]interface{}, match MatchFunc, extrac
 		Extracts:      make(map[string][]string),
 		DynamicValues: make(map[string]interface{}),
 	}
+	context := context.NewContext()
 
 	// Start with the extractors first and evaluate them.
 	for _, extractor := range r.Extractors {
