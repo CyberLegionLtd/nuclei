@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/labstack/echo"
+import "github.com/labstack/echo/v4"
 
 // GetTargets swagger:route GET /targets targets getTargets
 //
@@ -20,6 +20,7 @@ func (s *Server) AddTarget(ctx echo.Context) error {
 //
 // Returns a target for an ID.
 func (s *Server) GetTarget(ctx echo.Context) error {
+	// Optional parameter - raw returning raw data for target.
 	return nil
 }
 
@@ -41,12 +42,5 @@ func (s *Server) PatchTarget(ctx echo.Context) error {
 //
 // Removes a target for an ID.
 func (s *Server) DeleteTarget(ctx echo.Context) error {
-	return nil
-}
-
-// GetTargetRaw swagger:route GET /targets/:id/raw targets getTargetRaw
-//
-// Returns the raw target list for an ID.
-func (s *Server) GetTargetRaw(ctx echo.Context) error {
 	return nil
 }

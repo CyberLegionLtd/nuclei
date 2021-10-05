@@ -5,9 +5,11 @@ import (
 
 	"github.com/labstack/echo/v4"
 	middleware "github.com/labstack/echo/v4/middleware"
+	"github.com/projectdiscovery/nuclei/v2/pkg/web/rest/handlers"
 )
 
-func StartApplication(host string, port int, tls bool) {
+// StartApplication starts serving the application on a host-port.
+func StartApplication(host string, port int, tls bool, server *handlers.Server) {
 	// Echo instance
 	e := echo.New()
 
@@ -27,49 +29,36 @@ func StartApplication(host string, port int, tls bool) {
 	apiGroup := e.Group("/api/v1")
 
 	// Target management APIs
-	apiGroup.GET("/targets", handlerFunc)         // list all targets
-	apiGroup.POST("/targets", handlerFunc)        // add a new target
-	apiGroup.GET("/targets/:id", handlerFunc)     // get a specific target
-	apiGroup.PUT("/targets/:id", handlerFunc)     // update an existing target list fully
-	apiGroup.PATCH("/targets/:id", handlerFunc)   // append some input to a target list
-	apiGroup.DELETE("/targets/:id", handlerFunc)  // delete a target from the list
-	apiGroup.GET("/targets/:id/raw", handlerFunc) // get a target list in raw format
-
-	// Scan management APIs
-	apiGroup.GET("/scans", handlerFunc)                 // list all scans
-	apiGroup.POST("/scans", handlerFunc)                // add a new scan
-	apiGroup.GET("/scans/:id", handlerFunc)             // get a specific scan
-	apiGroup.PUT("/scans/:id", handlerFunc)             // update an existing scan status (pause,stop)
-	apiGroup.DELETE("/scans/:id", handlerFunc)          // delete a scan from the list
-	apiGroup.GET("/scans/:id/errors", handlerFunc)      // get a list of errors for a scan
-	apiGroup.GET("/scans/:id/matches", handlerFunc)     // get a list of matches for a scan
-	apiGroup.GET("/scans/:id/results/:id", handlerFunc) // get a specific result id for a scan id
+	apiGroup.GET("/targets", server.GetTargets)          // list all targets
+	apiGroup.POST("/targets", server.AddTarget)          // add a new target
+	apiGroup.GET("/targets/:id", server.GetTarget)       // get a specific target
+	apiGroup.PUT("/targets/:id", server.PutTarget)       // update an existing target list fully
+	apiGroup.PATCH("/targets/:id", server.PatchTarget)   // append some input to a target list
+	apiGroup.DELETE("/targets/:id", server.DeleteTarget) // delete a target from the list
 
 	// Template management APIs
-	apiGroup.GET("/templates", handlerFunc)               // list all templates
-	apiGroup.GET("/workflows", handlerFunc)               // list all workflows
-	apiGroup.POST("/templates", handlerFunc)              // add a new template
-	apiGroup.POST("/workflows", handlerFunc)              // add a new workflow
-	apiGroup.GET("/templates/:path", handlerFunc)         // get a specific template with path
-	apiGroup.GET("/workflows/:path", handlerFunc)         // get a specific workflow with path
-	apiGroup.PUT("/templates/:path", handlerFunc)         // update an existing template with path
-	apiGroup.PUT("/workflows/:path", handlerFunc)         // update an existing workflow with path
-	apiGroup.GET("/templates/:path/execute", handlerFunc) // execute a specific template with path (optional debug)
-	apiGroup.GET("/workflows/:path/execute", handlerFunc) // execute a specific workflow with path (optional debug)
+	apiGroup.GET("/templates", server.GetTemplates)                 // list all templates (optional workflows parameter)
+	apiGroup.POST("/templates", server.AddTemplate)                 // add a new template
+	apiGroup.GET("/templates/:id", server.GetTemplateForID)         // get a specific template with id
+	apiGroup.PUT("/templates/:id", server.UpdateTemplateForID)      // update an existing template with id
+	apiGroup.POST("/templates/:id/execute", server.ExecuteTemplate) // execute a specific template with id (optional debug)
+
+	// Scan management APIs
+	apiGroup.GET("/scans", server.GetScans)          // list all scans
+	apiGroup.POST("/scans", server.AddScan)          // add a new scan
+	apiGroup.GET("/scans/:id", server.GetScan)       // get a specific scan
+	apiGroup.PUT("/scans/:id", server.PutScan)       // update an existing scan status (pause,stop)
+	apiGroup.DELETE("/scans/:id", server.DeleteScan) // delete a scan from the list
 
 	// Setting management APIs
-	apiGroup.GET("/settings", handlerFunc) // get all settings
+	apiGroup.GET("/settings", server.GetSettings) // get all settings
 
 	// Dashboard APIs
-	apiGroup.GET("/dashboard", handlerFunc) // get all dashboard
+	apiGroup.GET("/dashboard", server.GetDashboard) // get all dashboard
 
 	// Misc APIs
-	apiGroup.GET("/usage", handlerFunc) // gets the usage metrics
+	apiGroup.GET("/usage", server.GetUsage) // gets the usage metrics
 
 	// Start server
 	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%d", host, port)))
-}
-
-func handlerFunc(echo.Context) error {
-	return nil
 }

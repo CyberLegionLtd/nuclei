@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/labstack/echo"
+import "github.com/labstack/echo/v4"
 
 // GetScans swagger:route GET /scans scans getScans
 //
@@ -20,6 +20,7 @@ func (s *Server) AddScan(ctx echo.Context) error {
 //
 // Returns a scan for an ID.
 func (s *Server) GetScan(ctx echo.Context) error {
+	// Accept errors, matches, results along with optional resultID parameter.
 	return nil
 }
 
@@ -34,26 +35,5 @@ func (s *Server) PutScan(ctx echo.Context) error {
 //
 // Deletes a scan from the list.
 func (s *Server) DeleteScan(ctx echo.Context) error {
-	return nil
-}
-
-// GetScanErrors swagger:route GET /scans/:id/errors targets getScanErrors
-//
-// Returns errors for a scan ID.
-func (s *Server) GetScanErrors(ctx echo.Context) error {
-	return nil
-}
-
-// GetScanMatches swagger:route GET /scans/:id/matches targets getScanMatches
-//
-// Returns matches for a scan ID.
-func (s *Server) GetScanMatches(ctx echo.Context) error {
-	return nil
-}
-
-// GetScanResultForID swagger:route GET /scans/:id/results/:id targets getScanResultForID
-//
-// Returns scan results for an ID.
-func (s *Server) GetScanResultForID(ctx echo.Context) error {
 	return nil
 }
