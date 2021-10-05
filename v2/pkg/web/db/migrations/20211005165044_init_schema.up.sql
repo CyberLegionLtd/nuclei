@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS templates
     id uuid NOT NULL,
     "isWorkflow" boolean,
     name character varying,
-    path character varying,
+    path character varying UNIQUE,
     contents text,
     "createdAt" timestamp with time zone,
     "updatedAt" timestamp with time zone,

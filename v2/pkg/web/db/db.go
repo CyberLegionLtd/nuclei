@@ -3,19 +3,20 @@ package db
 import (
 	"context"
 
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/projectdiscovery/nuclei/v2/pkg/web/model"
 )
 
 type Templates interface {
-	// GetTemplates returns templates for a query
-	GetTemplates(ctx context.Context) ([]*model.Template, error)
-	// GetTemplateForID returns template for a query ID
-	GetTemplateForID(ctx context.Context, templateID string, contents bool) (*model.Template, error)
-	// AddTemplate adds a template to the storage. If the template
-	// already exists, it is updated.
-	AddTemplate(ctx context.Context, template *model.Template) error
-	// DeleteTemplateForID deletes a template for an ID
-	DeleteTemplateForID(ctx context.Context, templateID string) error
+	// GetTemplates returns all templates in the database
+	List(callback TemplateCallback) error
+	// Get returns the contents for a template ID
+	Get(ID string) (string, error)
+	// Delete deletes a template for an ID
+	Delete(ID string) error
+	// Add adds a template to the db.
+	// If the template already exists for a path, it's contents are updated.
+	Add(template *model.Template) error
 }
 
 type Targets interface {
@@ -31,4 +32,24 @@ type Targets interface {
 	AddTarget(ctx context.Context, target *model.Target, append bool) error
 	// DeleteTargetForID deletes a target for an ID
 	DeleteTargetForID(ctx context.Context, targetID string) error
+}
+
+type DB struct {
+	db *pgxpool.Pool
+}
+
+func New(connStr string) (*DB, error) {
+	conn, err := pgxpool.Connect(context.Background(), connStr)
+	if err != nil {
+		return nil, err
+	}
+	return &DB{db: conn}, nil
+}
+
+func (d *DB) DB() *pgxpool.Pool {
+	return d.db
+}
+
+func (d *DB) Close() {
+	d.db.Close()
 }
