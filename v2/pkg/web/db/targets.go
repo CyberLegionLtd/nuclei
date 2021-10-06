@@ -9,34 +9,34 @@ import (
 	"github.com/projectdiscovery/nuclei/v2/pkg/web/model"
 )
 
-type templatesService struct {
+type targetsService struct {
 	db *pgxpool.Pool
 }
 
-func newTemplatesService(db *pgxpool.Pool) *templatesService {
-	return &templatesService{db: db}
+func newTargetsService(db *pgxpool.Pool) *targetsService {
+	return &targetsService{db: db}
 }
 
-// List returns all templates in db without their content
-func (s *templatesService) List(callback func(template *model.Template)) error {
+// List returns all targets in db
+func (s *targetsService) List(callback func(template *model.Target)) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	rows, err := s.db.Query(ctx, `SELECT
 id,
-"isWorkflow",
 name,
-path,
+"rawPath",
+"totalHosts",
 "createdAt",
-"updatedAt" FROM templates;`)
+"updatedAt" FROM targets;`)
 	if err != nil {
-		return errors.Wrap(err, "could not list templates")
+		return errors.Wrap(err, "could not list targets")
 	}
 	defer rows.Close()
 
-	template := &model.Template{}
+	template := &model.Target{}
 	for rows.Next() {
-		if scanErr := rows.Scan(&template.ID, &template.IsWorkflow, &template.Name, &template.Path, &template.CreatedAt, &template.UpdatedAt); scanErr != nil {
+		if scanErr := rows.Scan(&template.ID, &template.Name, &template.RawPath, &template.TotalHosts, &template.CreatedAt, &template.UpdatedAt); scanErr != nil {
 			err = scanErr
 		}
 		callback(template)
@@ -59,8 +59,7 @@ FROM templates WHERE ID=$1;`, ID).Scan(&contents)
 	return contents, nil
 }
 
-// Add adds a template to the db.
-// If the template already exists for a path, it's contents are updated.
+// Add adds a target to the db.
 func (s *templatesService) Add(template *model.Template) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

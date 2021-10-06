@@ -9,7 +9,7 @@ import (
 
 type Templates interface {
 	// GetTemplates returns all templates in the database
-	List(callback TemplateCallback) error
+	List(callback func(template *model.Template)) error
 	// Get returns the contents for a template ID
 	Get(ID string) (string, error)
 	// Delete deletes a template for an ID
@@ -20,8 +20,8 @@ type Templates interface {
 }
 
 type Targets interface {
-	// GetTargets returns targets stored for the engine.
-	GetTargets(ctx context.Context) ([]*model.Target, error)
+	// List returns all targets in db
+	List(callback func(template *model.Target)) error
 	// GetTargetForID returns a specific ID
 	GetTargetForID(ctx context.Context, targetID string) (*model.Target, error)
 	// AddTarget adds a target to the storage. If the target
