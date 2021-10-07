@@ -88,7 +88,7 @@ func (s *templatesService) Delete(ID string) error {
 
 	_, err := s.db.Exec(ctx, `DELETE FROM templates WHERE ID=$1;`, ID)
 	if err != nil {
-		return errors.Wrap(err, "could not list templates")
+		return errors.Wrap(err, "could not delete template")
 	}
 	return nil
 }

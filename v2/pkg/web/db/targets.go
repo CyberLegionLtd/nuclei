@@ -18,7 +18,7 @@ func newTargetsService(db *pgxpool.Pool) *targetsService {
 }
 
 // List returns all targets in db
-func (s *targetsService) List(callback func(template *model.Target)) error {
+func (s *targetsService) List(callback func(target *model.Target)) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -34,60 +34,44 @@ name,
 	}
 	defer rows.Close()
 
-	template := &model.Target{}
+	target := &model.Target{}
 	for rows.Next() {
-		if scanErr := rows.Scan(&template.ID, &template.Name, &template.RawPath, &template.TotalHosts, &template.CreatedAt, &template.UpdatedAt); scanErr != nil {
+		if scanErr := rows.Scan(&target.ID, &target.Name, &target.RawPath, &target.TotalHosts, &target.CreatedAt, &target.UpdatedAt); scanErr != nil {
 			err = scanErr
 		}
-		callback(template)
+		callback(target)
 	}
 	return err
 }
 
-// Get returns the contents for a template ID
-func (s *templatesService) Get(ID string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	var contents string
-	err := s.db.QueryRow(ctx, `SELECT
-contents
-FROM templates WHERE ID=$1;`, ID).Scan(&contents)
-	if err != nil {
-		return "", errors.Wrap(err, "could not get template content")
-	}
-	return contents, nil
-}
-
 // Add adds a target to the db.
-func (s *templatesService) Add(template *model.Template) error {
+func (s *targetsService) Add(target *model.Target) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	_, err := s.db.Exec(ctx, `INSERT INTO templates (
+	_, err := s.db.Exec(ctx, `INSERT INTO targets (
 id,
-"isWorkflow",
 name,
-path,
-contents,
+"rawPath",
+"totalHosts",
 "createdAt",
 "updatedAt") VALUES
-($1, $2, $3, $4, $5, NOW(), NOW()) 
-ON CONFLICT (path) DO UPDATE SET contents=$5, "updatedAt"=NOW();`, template.ID, template.IsWorkflow, template.Name, template.Path, template.Contents)
+($1, $2, $3, $4, NOW(), NOW()) 
+ON CONFLICT ("rawPath") DO UPDATE SET "updatedAt"=NOW();`, target.ID, target.Name, target.RawPath, target.TotalHosts)
 	if err != nil {
 		return errors.Wrap(err, "could not add template")
 	}
 	return nil
 }
 
-// Delete deletes a template for an ID
-func (s *templatesService) Delete(ID string) error {
+// Delete deletes a target for an ID
+func (s *targetsService) Delete(ID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	_, err := s.db.Exec(ctx, `DELETE FROM templates WHERE ID=$1;`, ID)
+	_, err := s.db.Exec(ctx, `DELETE FROM targets WHERE ID=$1;`, ID)
 	if err != nil {
-		return errors.Wrap(err, "could not list templates")
+		return errors.Wrap(err, "could not delete target")
 	}
 	return nil
 }

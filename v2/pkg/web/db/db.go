@@ -22,6 +22,8 @@ type Templates interface {
 type Targets interface {
 	// List returns all targets in db
 	List(callback func(template *model.Target)) error
+	// Delete deletes a target for an ID
+	Delete(ID string) error
 	// GetTargetForID returns a specific ID
 	GetTargetForID(ctx context.Context, targetID string) (*model.Target, error)
 	// AddTarget adds a target to the storage. If the target
@@ -30,8 +32,6 @@ type Targets interface {
 	// Append specifies whether the input should be appended or overwritten
 	// completely.
 	AddTarget(ctx context.Context, target *model.Target, append bool) error
-	// DeleteTargetForID deletes a target for an ID
-	DeleteTargetForID(ctx context.Context, targetID string) error
 }
 
 type DB struct {

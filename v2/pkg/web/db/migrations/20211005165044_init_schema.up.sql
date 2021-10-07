@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS targets
 (
     id uuid NOT NULL,
     name character varying,
-    "rawPath" character varying,
+    "rawPath" character varying UNIQUE,
     "totalHosts" bigint,
     "createdAt" timestamp with time zone,
     "updatedAt" timestamp with time zone,
