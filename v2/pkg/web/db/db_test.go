@@ -68,6 +68,11 @@ func TestMain(m *testing.M) {
 		conn.Close(context.Background())
 	}()
 
+	err = ApplyMigrations(getPostgresConnString())
+	if err != nil {
+		log.Fatalf("Could not apply migrations: %s", err.Error())
+	}
+
 	code := m.Run()
 
 	if err := pool.Purge(resource); err != nil {

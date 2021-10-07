@@ -24,14 +24,8 @@ type Targets interface {
 	List(callback func(template *model.Target)) error
 	// Delete deletes a target for an ID
 	Delete(ID string) error
-	// GetTargetForID returns a specific ID
-	GetTargetForID(ctx context.Context, targetID string) (*model.Target, error)
-	// AddTarget adds a target to the storage. If the target
-	// already exists, it is updated.
-	//
-	// Append specifies whether the input should be appended or overwritten
-	// completely.
-	AddTarget(ctx context.Context, target *model.Target, append bool) error
+	// Add adds a target to the db.
+	Add(target *model.Target) error
 }
 
 type DB struct {
@@ -39,7 +33,7 @@ type DB struct {
 }
 
 func New(connStr string) (*DB, error) {
-	conn, err := pgxpool.Connect(context.Background(), connStr)
+	conn, err := pgxpool.Connect(context.Background(), connStr+"&pool_max_conns=50")
 	if err != nil {
 		return nil, err
 	}
