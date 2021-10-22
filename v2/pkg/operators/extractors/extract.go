@@ -7,6 +7,7 @@ import (
 
 	"github.com/antchfx/htmlquery"
 
+	"github.com/projectdiscovery/nuclei/v2/pkg/protocols/common/expressions"
 	"github.com/projectdiscovery/nuclei/v2/pkg/types"
 )
 
@@ -37,6 +38,13 @@ func (e *Extractor) ExtractKval(data map[string]interface{}) map[string]struct{}
 	results := make(map[string]struct{})
 
 	for _, k := range e.KVal {
+
+		var err error
+		k, err = expressions.Evaluate(k, data)
+		if err != nil {
+			continue
+		}
+
 		item, ok := data[k]
 		if !ok {
 			continue

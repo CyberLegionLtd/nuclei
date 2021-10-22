@@ -11,6 +11,7 @@ import (
 	"github.com/projectdiscovery/nuclei/v2/pkg/operators/matchers"
 	"github.com/projectdiscovery/nuclei/v2/pkg/output"
 	"github.com/projectdiscovery/nuclei/v2/pkg/protocols"
+	"github.com/projectdiscovery/nuclei/v2/pkg/protocols/common/generators"
 	"github.com/projectdiscovery/nuclei/v2/pkg/protocols/common/helpers/responsehighlighter"
 	"github.com/projectdiscovery/nuclei/v2/pkg/types"
 )
@@ -65,7 +66,7 @@ func (request *Request) Extract(data map[string]interface{}, extractor *extracto
 	case extractors.RegexExtractor:
 		return extractor.ExtractRegex(item)
 	case extractors.KValExtractor:
-		return extractor.ExtractKval(data)
+		return extractor.ExtractKval(generators.MergeMaps(data, request.dynamicValues))
 	case extractors.XPathExtractor:
 		return extractor.ExtractHTML(item)
 	case extractors.JSONExtractor:
