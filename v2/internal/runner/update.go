@@ -267,7 +267,7 @@ func (r *Runner) downloadReleaseAndUnzip(ctx context.Context, version, downloadU
 		return nil, fmt.Errorf("failed to create template base folder: %w", err)
 	}
 
-	results, err := r.compareAndWriteTemplates(zipReader)
+	results, err := r.compareAndWriteTemplates(zipReader, version)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write templates: %w", err)
 	}
@@ -302,8 +302,14 @@ type templateUpdateResults struct {
 	checksums     map[string]string
 }
 
+type templateDiffChanges struct {
+	addedFiles    map[string]struct{}
+	removedFiles  map[string]struct{}
+	modifiedFiles map[string]struct{}
+}
+
 // compareAndWriteTemplates compares and returns the stats of a template update operations.
-func (r *Runner) compareAndWriteTemplates(zipReader *zip.Reader) (*templateUpdateResults, error) {
+func (r *Runner) compareAndWriteTemplates(zipReader *zip.Reader, version string) (*templateUpdateResults, error) {
 	results := &templateUpdateResults{
 		checksums: make(map[string]string),
 	}
@@ -316,6 +322,18 @@ func (r *Runner) compareAndWriteTemplates(zipReader *zip.Reader) (*templateUpdat
 	configuredTemplateDirectory := r.templatesConfig.TemplatesDirectory
 	checksumFile := filepath.Join(configuredTemplateDirectory, ".checksum")
 	templateChecksumsMap, _ := createTemplateChecksumsMap(checksumFile)
+
+	templateDiffChanges := &templateDiffChanges{
+		addedFiles:    make(map[string]struct{}),
+		removedFiles:  make(map[string]struct{}),
+		modifiedFiles: make(map[string]struct{}),
+	}
+
+	err := templateDiffCheck(templateDiffChanges, version)
+	if err != nil {
+		gologger.Warning().Msgf("Could not fetch template diff in newly added templates in the release: %s, Error: %s", version, err)
+	}
+
 	for _, zipTemplateFile := range zipReader.File {
 		templateAbsolutePath, skipFile, err := calculateTemplateAbsolutePath(zipTemplateFile.Name, configuredTemplateDirectory)
 		if err != nil {
@@ -325,22 +343,18 @@ func (r *Runner) compareAndWriteTemplates(zipReader *zip.Reader) (*templateUpdat
 			continue
 		}
 
-		isAddition := false
-		if _, statErr := os.Stat(templateAbsolutePath); os.IsNotExist(statErr) {
-			isAddition = true
+		relativeTemplatePath, err := filepath.Rel(configuredTemplateDirectory, templateAbsolutePath)
+		if err != nil {
+			return nil, fmt.Errorf("could not calculate relative path for template: %s. %w", templateAbsolutePath, err)
 		}
 
+		_, isAddition := templateDiffChanges.addedFiles[relativeTemplatePath]
 		newTemplateChecksum, err := writeUnZippedTemplateFile(templateAbsolutePath, zipTemplateFile)
 		if err != nil {
 			return nil, err
 		}
 
 		oldTemplateChecksum, checksumOk := templateChecksumsMap[templateAbsolutePath]
-
-		relativeTemplatePath, err := filepath.Rel(configuredTemplateDirectory, templateAbsolutePath)
-		if err != nil {
-			return nil, fmt.Errorf("could not calculate relative path for template: %s. %w", templateAbsolutePath, err)
-		}
 
 		if isAddition {
 			results.additions = append(results.additions, relativeTemplatePath)
@@ -394,7 +408,7 @@ func writeUnZippedTemplateFile(templateAbsolutePath string, zipTemplateFile *zip
 func calculateTemplateAbsolutePath(zipFilePath, configuredTemplateDirectory string) (string, bool, error) {
 	directory, fileName := filepath.Split(zipFilePath)
 
-	if strings.TrimSpace(fileName) == "" || strings.HasPrefix(fileName, ".") || strings.EqualFold(fileName, "README.md") {
+	if strings.TrimSpace(fileName) == "" || strings.HasPrefix(fileName, ".") || !(strings.HasSuffix(fileName, ".yaml") || strings.HasSuffix(fileName, ".yml")) {
 		return "", true, nil
 	}
 
@@ -484,6 +498,40 @@ func writeTemplatesChecksum(file string, checksum map[string]string) error {
 			return err
 		}
 		builder.Reset()
+	}
+	return nil
+}
+
+// templateDiffCheck fetches and stores newly added tempates in a release version
+func templateDiffCheck(templateDiffChanges *templateDiffChanges, version string) error {
+	gitHubClient := github.NewClient(nil)
+	releaseList, _, err := gitHubClient.Repositories.ListReleases(context.Background(), userName, repoName, nil)
+	if err != nil {
+		return err
+	}
+
+	var previousRelease string
+	for i, release := range releaseList {
+		if release.GetTagName() == "v"+version && len(releaseList) > i+1 {
+			previousRelease = releaseList[i+1].GetTagName()
+		}
+	}
+
+	commitcomp, _, err := gitHubClient.Repositories.CompareCommits(context.Background(), userName, repoName, previousRelease, "v"+version)
+	if err != nil {
+		return err
+	}
+
+	gitHubClient.Repositories.GetReleaseByTag(context.Background(), userName, repoName, "v"+version)
+	for _, file := range commitcomp.Files {
+		switch file.GetStatus() {
+		case "added":
+			templateDiffChanges.addedFiles[file.GetFilename()] = struct{}{}
+		case "removed":
+			templateDiffChanges.removedFiles[file.GetFilename()] = struct{}{}
+		case "modified", "renamed":
+			templateDiffChanges.modifiedFiles[file.GetFilename()] = struct{}{}
+		}
 	}
 	return nil
 }
