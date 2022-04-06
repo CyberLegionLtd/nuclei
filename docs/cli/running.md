@@ -326,3 +326,66 @@ Custom SSL Certificates, Keys and Certificate Authorities can be passed to Nucle
 
 ## Interactsh
 
+Nuclei comes with Interactsh integration for Out of Band (OOB) testing support. The interactsh integration can be configured by using the below provided flags.
+
+- `-iserver`, `-interactsh-server` - Custom interactsh server
+- `-itoken`, -interactsh-token` - Interactsh Token for self hosted server
+- `-ni`, `-no-interactsh` - Disable interactsh server
+
+```bash
+# Run nuclei with custom interactsh server and token
+nuclei -t cves/ -interactsh-server https://exfiltest.com -interactsh-token testingtokeninteractsh
+```
+
+
+## Rate-Limits
+
+Nuclei comes with a number of options to control the rate-limit. This includes - the number of templates to execute concurrently, the number of hosts to process for each template concurrently and the global maxomim number of requests per minute/second that you want to send.
+
+**Rate Limit Per Minute Or Second** - `-rl`/`-rate-limit` is the maximum number of requests to send per second. `-rlm`/`-rate-limit-minute` is the maximum number of requests to send per minute.
+
+**Concurrency** - `-c`/`-concurrency` is the maximum number of template to process concurrently. Headless templates concurrency can be configured by using `-hc`/`-headless-concurrency` flag similarly.
+
+**Bulk Size** - `-bs`/`-bulk-size` is the maximum number of hosts to process per template concurrently. Headless templates bulk-size can be configured by using `-hbs`/`-headless-bulk-size` flag similarly.
+
+Feel free to play with these flags to tune your nuclei scan speed and accuracy.
+
+```bash
+# Example of nuclei rate limit configurations
+nuclei -t cves/ -rate-limit 900 -c 30 -bs 30 -l list.txt
+```
+
+**Tip**
+
+rate-limit flag takes precedence over the other two flags, the number of requests/seconds can't go beyond the value defined for rate-limit flag regardless the value of c and bulk-size flag.
+
+
+## Optimizations
+
+**Timeout and Retries**
+
+Number of seconds to wait for a response can be configured by using `-timeout` flag. By default, a timeout of 5 seconds is used per request. The number of times a failed request is retried can be configured by using `-retries` flag. Default number of retries is 1.
+
+```bash
+# Run nuclei with timeout of 10 seconds and 3 retries
+nuclei -timeout 10 -retries 3
+```
+
+**Errors Per Host**
+
+Errors occuring per-host are kept track of across protocols. If a host crosses the maximum errors per host threshold, which is defined by `-mhe`/`-max-host-error` flag, the host is marked as not-working and discarded from the rest of the scan. By default, 30 errors per host is considered to be the threshold.
+
+```bash
+# Run nuclei with max host error threshold of 10.
+nuclei -max-host-error 10
+```
+
+**Stop At First Match**
+
+Templates include logic that decide whether on finding a match, remaining requests should be dropped or performed. This is performed by using `stop-at-first-match: true` template attribute. However, a CLI flag is provided called `-spm`/`-stop-at-first-path` which forces the remaining requests to be skipped after matches. 
+
+```bash
+# Run nuclei with stop-at-first-match globally enabled
+nuclei -stop-at-first-path
+```
+
