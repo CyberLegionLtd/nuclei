@@ -389,3 +389,129 @@ Templates include logic that decide whether on finding a match, remaining reques
 nuclei -stop-at-first-path
 ```
 
+**Project Feature**
+
+Project is a feature which allows nuclei to reuse same HTTP requests by storing them locally in a database and using it for further scans. 
+
+This allows re-using of similar HTTP requests at the cost of some extra processing. The feature can be enabled by using `-project` flag along with `-project-path` flag for specifying custom project storage path.
+
+```
+# Run nuclei with project and project-path
+nuclei -t nuclei-templates/ -project -project-path test-project
+```
+
+**Stream Mode**
+
+Another input parsing adjustment can be made by using `-stream` flag, which enables stream processing of input from STDIN without waiting for all the input to be passed. 
+
+This is very helpful when Nuclei is used in pipeline with other tools, increasing the speed of processing.
+
+```
+# Run nuclei in stream mode with httpx and subfinder
+subfinder -d domain.com | httpx -stream | nuclei -stream -t cves/
+```
+
+## Headless
+
+Headless mode can be enabled in nuclei by using `-headless` flag. By default, headless is disabled for security and speed reasons, since compared to normal HTTP, headless is slower (subject to change).
+
+Nuclei uses [go-rod](https://github.com/go-rod/rod) and provides a YAML layer on top of it. The headless mode can be configured by using below provided options.
+
+- `-page-timeout` - seconds to wait for each page in headless mode (default 20 seconds)
+- `-sb`, `-show-browser` - show the browser on the screen when running templates with headless mode
+- `-sc`, `-system-chrome` - Use local installed chrome browser instead of nuclei installed
+
+Example Usage - 
+
+```bash
+# Run nuclei in headless mode with configuration options
+nuclei -t headless/ -headless -show-browser -page-timeout 30
+```
+
+## Debug
+
+Debug options can be used for getting additional debug information that is not available on default nuclei run.
+
+- `-debug`, `-debug-req` and `-debug-resp` flags can used to show request-response, request or response for various protocol requests made by nuclei. 
+- `-p`/`-proxy` flags can be used to pass a list of proxies to nuclei. (Can be comma separated or a file)
+- `-tlog`/`-trace-log` and `-elog`/`-error-log` flags can be used to write requests trace or error log to a file. 
+- `-version` and `-template-version` can be used to show nuclei version and nuclei-templates version respectively.
+- `-v`/`-verbose` flag enables verbose nuclei logging output.
+
+Example Usage - 
+
+```bash
+# Show nuclei version
+nuclei -version
+
+# Show templates version
+nuclei -template-version
+
+# Run nuclei with various debug options
+nuclei -t cves/ -debug-req -trace-log trace.log -error-log error.log -v
+
+# Run nuclei with a single proxy
+nuclei -t panels/ -proxy http://localhost:80
+
+# Run nuclei with a list of proxies
+nuclei -t panels/ -proxy proxies.txt
+```
+
+## Update
+
+Nuclei comes with a number of options to aid in templates as well as automatic engine updation. 
+
+`-update` flag can be used to update local nuclei to the latest version from Github. `-ut`/`-update-templates` can be used to update local nuclei templates to the latest version. This is also done automatically every few hours. To disable the automatic update check for templates, `-duc`/`-disable-update-check` flag can be used.
+
+```bash
+# Update nuclei to the latest version
+nuclei -update
+
+# Update nuclei-templates to the latest version
+nuclei -update-templates
+
+# Run nuclei with template update check disabled
+nuclei -disable-update-check
+```
+
+## Statistics
+
+`-stats` flag shows newline formatted Stats information on nuclei execution. `-sj`/`-stats-json` can be used to show the same stats data JSON formatted. `-si`/`-stats-interval` defines the interval between two stats line being printed (default 5 seconds).
+
+```bash
+# Run nuclei with stats 
+nuclei -t cves/ -stats
+
+# Run nuclei with stats, stats-json and custom interval
+nuclei -t cves/ -stats -stats-json -stats-interval 10
+```
+
+Nuclei also exposes running scan metrics (statistics) on metrics-port (default 9092) when ran with `-m`/`-metrics` flag. These can be accessed at [http://localhost:9092/metrics](http://localhost:9092/metrics). The default port can be changed with `-mp`/`-metrics-port` flag.
+
+```bash
+# Run nuclei with metrics and port
+nuclei -t cves/ -metrics -metrics-port 9092
+```
+
+An example of querying the metrics from the endpoint after running nuclei with above command.
+
+```bash
+# curl the metrics endpoint and pass data to jq
+curl -s localhost:9092/metrics | jq .
+```
+
+```json
+{
+  "duration": "0:00:03",
+  "errors": "2",
+  "hosts": "1",
+  "matched": "0",
+  "percent": "99",
+  "requests": "350",
+  "rps": "132",
+  "startedAt": "2021-03-27T18:02:18.886745+05:30",
+  "templates": "256",
+  "total": "352"
+}
+```
+
