@@ -98,6 +98,8 @@ resolvers:
   - "10.0.0.1"
 ```
 
+## Example
+
 An example DNS template that detects AWS EC2 CNAME is provided below to illustrate how a DNS template looks like.
 
 ```yaml
@@ -108,14 +110,7 @@ info:
   author: melbadry9
   severity: info
   description: Amazon Elastic Compute Cloud (EC2) detected.
-  tags: dns,ec2,aws
-  reference:
-    - https://blog.melbadry9.xyz/dangling-dns/aws/ddns-ec2-current-state
-  classification:
-    cvss-metrics: CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N
-    cvss-score: 0.0
-    cwe-id: CWE-200
-
+  
 dns:
   - name: "{{FQDN}}"
     type: CNAME

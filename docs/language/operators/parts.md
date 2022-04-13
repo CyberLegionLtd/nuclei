@@ -20,3 +20,16 @@ The following parts can be matched on for different protocols in Nuclei using ma
 | ns            | NS contains the DNS response NS field                |
 | raw,body,all  | Raw contains the raw DNS response (default)          |
 | trace         | Trace contains trace data for DNS request if enabled |
+
+
+## File
+
+| Part              | Description of the part                      |
+|-------------------|----------------------------------------------|
+| template-id       | ID of the template executed                  |
+| template-info     | Info Block of the template executed          |
+| template-path     | Path of the template executed                |
+| matched           | Matched is the input which was matched upon  |
+| path              | Path is the path of file on local filesystem |
+| type              | Type is the type of request made             |
+| raw,body,all,data | Raw contains the raw file contents           |
