@@ -99,6 +99,24 @@ matchers:
 
 Multiple steps can be chained together in sequence to do network reading / writing.
 
+## read-size
+
+Number of bytes to read from the network socket at the end of the connection. By default, 1024 bytes are read from the socket.
+
+```yaml
+# read 8 bytes from socket
+read-size: 8
+```
+
+## read-all
+
+Read-all keeps reading data from the network socket until EOF is reached. It can be used when the size of the server response is not known beforehand.
+
+```yaml
+# keep reading from socket until we reach end
+read-all: true
+```
+
 ## Example
 
 The final example template file for a hex encoded input to detect **MongoDB** running on servers with working matchers is provided below.

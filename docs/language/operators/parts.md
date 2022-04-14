@@ -46,3 +46,32 @@ The following parts can be matched on for different protocols in Nuclei using ma
 | request       | Network request made from the client            |
 | body,all,data | Network response received from server (default) |
 | raw           | Full Network protocol data                      |
+
+## SSL
+
+| Part      | Description of the part                       |
+|-----------|-----------------------------------------------|
+| type      | Type is the type of request made              |
+| response  | JSON SSL protocol handshake details           |
+| not_after | Timestamp after which the remote cert expires |
+| host      | Host is the input to the template             |
+| matched   | Matched is the input which was matched upon   |
+
+## Websocket
+
+| Part     | Description of the part                                       |
+|----------|---------------------------------------------------------------|
+| type     | Type is the type of request made                              |
+| success  | Success specifies whether websocket connection was successful |
+| request  | Websocket request made to the server                          |
+| response | Websocket response received from the server                   |
+| host     | Host is the input to the template                             |
+| matched  | Matched is the input which was matched upon                   |
+
+## Whois
+
+| Part     | Description of the part             |
+|----------|-------------------------------------|
+| type     | Type is the type of Whois request   |
+| host     | Host the Whois request was made for |
+| response | Whois data in JSON response format  |

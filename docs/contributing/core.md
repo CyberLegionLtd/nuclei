@@ -11,7 +11,7 @@ go build; \
 ./nuclei -version;
 ```
 
-- The next step is to understand the code structure of the Nuclei Project. [Code Structure](../references/code-structure.md) can be read to get an idea. Other useful guides are [Nuclei Go Usage Example](../guides/nuclei-go-example.md) and [New Nuclei Protocol Addition Example](../guides/new-nuclei-protocol.md). These can be used as a starting point to get a feel for the codebase.
+- The next step is to understand the code structure of the Nuclei Project. [Code Structure](../references/code-structure.md) can be read to get an idea. Other useful guides are [Nuclei Go Usage Example](../guides/code/nuclei-go-example.md) and [New Nuclei Protocol Addition Example](../guides/code/new-nuclei-protocol.md). These can be used as a starting point to get a feel for the codebase.
 
 - Now we can make our change to the code. Nuclei Core Pull Requests are made to the **dev** branch. To switch your local copy to the dev branch, type the following command.
 
