@@ -36,6 +36,16 @@ The following parts can be matched on for different protocols in Nuclei using ma
 | type              | Type is the type of request made             |
 | raw,body,all,data | Raw contains the raw file contents           |
 
+## Headless
+
+| Part           | Description of the part                          |
+|----------------|--------------------------------------------------|
+| host           | Host is the input to the template                |
+| matched        | Matched is the input which was matched upon      |
+| type           | Type is the type of request made                 |
+| req            | Headless request made from the client            |
+| resp,body,data | Headless response received from client (default) |
+
 ## Network
 
 | Part          | Description of the part                         |
