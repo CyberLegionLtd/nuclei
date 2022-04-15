@@ -64,18 +64,7 @@ matchers:
       - "contains(toupper(body), md5(cookie))" # Check if the MD5 sum of cookies is contained in the uppercase body
 ```
 
-Every part of a Protocol response can be matched with DSL matcher. Some examples - 
-
-| Response Part  | Description                                     | Example                |
-|----------------|-------------------------------------------------|------------------------|
-| content_length | Content-Length Header                           | content_length >= 1024 |
-| status_code    | Response Status Code                            | status_code==200       |
-| all_headers    | Unique string containing all headers            | len(all_headers)       |
-| body           | Body as string                                  | len(body)              |
-| header_name    | Lowercase header name with `-` converted to `_` | len(user_agent)        |
-| raw            | Headers + Response                              | len(raw)               |
-
-
+Every part of a Protocol response can be matched with DSL matcher. The parts are defined [here](parts.md).
 ## Conditions
 
 Multiple words and regexes can be specified in a single matcher and can be configured with different conditions like **AND** and **OR**.

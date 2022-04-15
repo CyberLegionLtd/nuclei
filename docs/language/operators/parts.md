@@ -46,6 +46,25 @@ The following parts can be matched on for different protocols in Nuclei using ma
 | req            | Headless request made from the client            |
 | resp,body,data | Headless response received from client (default) |
 
+## HTTP
+
+
+| Part                  | Description of the part                           |
+|-----------------------|---------------------------------------------------|
+| host                  | Host is the input to the template                 |
+| matched               | Matched is the input which was matched upon       |
+| type                  | Type is the type of request made                  |
+| request               | HTTP request made from the client                 |
+| response              | HTTP response received from server                |
+| status_code           | Status Code received from the Server              |
+| body                  | HTTP response body received from server (default) |
+| content_length        | HTTP Response content length                      |
+| header,all_headers    | HTTP response headers                             |
+| duration              | HTTP request time duration                        |
+| all                   | HTTP response body + headers                      |
+| cookies_from_response | HTTP response cookies in name:value format        |
+| headers_from_response | HTTP response headers in name:value format        |
+
 ## Network
 
 | Part          | Description of the part                         |
