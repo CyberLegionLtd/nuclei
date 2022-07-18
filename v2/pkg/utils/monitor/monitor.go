@@ -83,6 +83,8 @@ func (s *Agent) monitorWorker() {
 		if err := ioutil.WriteFile(stackTraceFile, currentStack, os.ModePerm); err != nil {
 			gologger.Error().Msgf("Could not write stack trace for goroutines: %s\n", err)
 		}
+		// sync scan state
+		Scan.syncToMonitorFile()
 		os.Exit(1) // exit forcefully if we've been stuck
 	}
 }

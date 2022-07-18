@@ -9,6 +9,7 @@ import (
 	"github.com/projectdiscovery/nuclei/v2/pkg/templates"
 	"github.com/projectdiscovery/nuclei/v2/pkg/templates/types"
 	generalTypes "github.com/projectdiscovery/nuclei/v2/pkg/types"
+	"github.com/projectdiscovery/nuclei/v2/pkg/utils/monitor"
 )
 
 // Execute takes a list of templates/workflows that have been compiled
@@ -41,6 +42,7 @@ func (e *Engine) ExecuteWithOpts(templatesList []*templates.Template, target Inp
 		}
 
 		wg.Add()
+		monitor.Scan.IncrementTemplates()
 		go func(tpl *templates.Template) {
 			switch {
 			case tpl.SelfContained:
@@ -51,6 +53,7 @@ func (e *Engine) ExecuteWithOpts(templatesList []*templates.Template, target Inp
 				e.executeModelWithInput(templateType, tpl, target, results)
 			}
 			wg.Done()
+			monitor.Scan.DecrementTemplates()
 		}(template)
 	}
 	e.workPool.Wait()
@@ -126,7 +129,13 @@ func (e *Engine) executeModelWithInput(templateType types.ProtocolType, template
 		}
 
 		wg.WaitGroup.Add()
+
+		monitor.Scan.IncrementTargets()
+		monitor.Scan.InsertTargetTemplate(scannedValue, template.ID)
 		go func(index uint32, skip bool, value string) {
+			defer monitor.Scan.DecrementTargets()
+			defer monitor.Scan.DeleteTargetTemplate(scannedValue, template.ID)
+
 			defer wg.WaitGroup.Done()
 			defer cleanupInFlight(index)
 			if skip {
