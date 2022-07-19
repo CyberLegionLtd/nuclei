@@ -61,6 +61,8 @@ func (s *ScanMonitor) InsertTargetTemplate(target, template string) {
 	if _, ok := s.inFlightTargetTemplates[input]; !ok {
 		s.inFlightTargetTemplates[input] = struct{}{}
 	}
+
+	s.syncToMonitorFile() // sync with each insert operation
 }
 
 // DeleteTargetTemplate deletes a target template from set
@@ -70,6 +72,8 @@ func (s *ScanMonitor) DeleteTargetTemplate(target, template string) {
 
 	input := strings.Join([]string{template, target}, ":")
 	delete(s.inFlightTargetTemplates, input)
+
+	s.syncToMonitorFile() // sync with each delete operation
 }
 
 type scanMonitorFileData struct {
