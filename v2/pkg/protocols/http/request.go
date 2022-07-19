@@ -257,10 +257,10 @@ func (request *Request) ExecuteWithResults(reqURL string, dynamicValues, previou
 			variablesMap, interactURLs := request.options.Variables.EvaluateWithInteractsh(generators.MergeMaps(dynamicValues, payloads), request.options.Interactsh)
 			dynamicValue = generators.MergeMaps(variablesMap, dynamicValue)
 
-			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(request.options.Options.Timeout)*time.Second)
-			defer cancel()
+			//	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(request.options.Options.Timeout)*time.Second)
+			//	defer cancel()
 
-			generatedHttpRequest, err := generator.Make(ctx, reqURL, data, payloads, dynamicValue)
+			generatedHttpRequest, err := generator.Make(context.Background(), reqURL, data, payloads, dynamicValue)
 			if err != nil {
 				if err == io.EOF {
 					return true, nil
