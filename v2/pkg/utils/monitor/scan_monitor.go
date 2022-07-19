@@ -55,12 +55,11 @@ func (s *ScanMonitor) DecrementTemplates() {
 // InsertTargetTemplate inserts a target template to set
 func (s *ScanMonitor) InsertTargetTemplate(target, template string) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	input := strings.Join([]string{template, target}, ":")
 	if _, ok := s.inFlightTargetTemplates[input]; !ok {
 		s.inFlightTargetTemplates[input] = struct{}{}
 	}
+	s.mu.Unlock()
 
 	s.syncToMonitorFile() // sync with each insert operation
 }
@@ -68,10 +67,9 @@ func (s *ScanMonitor) InsertTargetTemplate(target, template string) {
 // DeleteTargetTemplate deletes a target template from set
 func (s *ScanMonitor) DeleteTargetTemplate(target, template string) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	input := strings.Join([]string{template, target}, ":")
 	delete(s.inFlightTargetTemplates, input)
+	s.mu.Unlock()
 
 	s.syncToMonitorFile() // sync with each delete operation
 }
