@@ -89,6 +89,15 @@ func (s *Agent) monitorWorker() {
 	}
 }
 
+// WriteStackTrace writes stack trace to file
+func WriteStackTrace() {
+	stackTraceFile := fmt.Sprintf("nuclei-%s.dump", xid.New().String())
+	gologger.Error().Msgf("Dumping stack trace %s\n", stackTraceFile)
+	if err := ioutil.WriteFile(stackTraceFile, getStack(true), os.ModePerm); err != nil {
+		gologger.Error().Msgf("Could not write stack trace for goroutines: %s\n", err)
+	}
+}
+
 // getStack returns full stack trace of the program
 var getStack = func(all bool) []byte {
 	for i := 1024 * 1024; ; i *= 2 {

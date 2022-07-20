@@ -45,6 +45,7 @@ import (
 	"github.com/projectdiscovery/nuclei/v2/pkg/templates"
 	"github.com/projectdiscovery/nuclei/v2/pkg/types"
 	"github.com/projectdiscovery/nuclei/v2/pkg/utils"
+	"github.com/projectdiscovery/nuclei/v2/pkg/utils/monitor"
 	"github.com/projectdiscovery/nuclei/v2/pkg/utils/stats"
 	yamlwrapper "github.com/projectdiscovery/nuclei/v2/pkg/utils/yaml"
 	"github.com/projectdiscovery/retryablehttp-go"
@@ -304,6 +305,10 @@ func (r *Runner) Close() {
 // binary and runs the actual enumeration
 func (r *Runner) RunEnumeration() error {
 	defer r.Close()
+	defer func() {
+		fmt.Printf("Closing runner\n")
+		monitor.WriteStackTrace()
+	}()
 
 	// If user asked for new templates to be executed, collect the list from the templates' directory.
 	if r.options.NewTemplates {
@@ -581,7 +586,7 @@ func (r *Runner) readNewTemplatesFile() ([]string, error) {
 	file, err := os.Open(additionsFile)
 	if err != nil {
 		return nil, err
-	}	
+	}
 	defer file.Close()
 
 	templatesList := []string{}

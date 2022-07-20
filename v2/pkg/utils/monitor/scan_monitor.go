@@ -70,8 +70,6 @@ func (s *ScanMonitor) DeleteTargetTemplate(target, template string) {
 	input := strings.Join([]string{template, target}, ":")
 	delete(s.inFlightTargetTemplates, input)
 	s.mu.Unlock()
-
-	s.syncToMonitorFile() // sync with each delete operation
 }
 
 type scanMonitorFileData struct {
