@@ -20,14 +20,14 @@ jobs:
       - name: "Set up Go"
         uses: actions/setup-go@v3
         with: 
-          go-version: 1.18.6
+          go-version: 1.18
 
       - name: Generate YAML Syntax Documentation
         id: generate-docs
         run: |
           if ! which dstdocgen > /dev/null; then
             echo -e "Command dstdocgen not found! Installing\c"
-            go install github.com/projectdiscovery/yamldoc-go/cmd/docgen/dstdocgen@main
+            go install github.com/projectdiscovery/yamldoc-go/cmd/docgen/dstdocgen@dst-update
           fi
           go generate pkg/templates/templates.go
           go build -o "cmd/docgen/docgen" cmd/docgen/docgen.go 
