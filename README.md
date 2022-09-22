@@ -348,3 +348,14 @@ Nuclei is distributed under [MIT License](https://github.com/projectdiscovery/nu
 <h1 align="left">
   <a href="https://discord.gg/projectdiscovery"><img src="static/Join-Discord.png" width="380" alt="Join Discord"></a> <a href="https://nuclei.projectdiscovery.io"><img src="static/check-nuclei-documentation.png" width="380" alt="Check Nuclei Documentation"></a>
 </h1>
+  <p align="center">
+  <a href="#https://cyberlegion.io/bug-bounty-continue-penetration-testing/">Private Bug Bounty</a> •
+  <a href="#for-security-engineers">For Security Engineers</a> •
+  <a href="#for-developers-and-organisations">For Developers</a> •
+  <a href="https://nuclei.projectdiscovery.io/nuclei/get-started/">Documentation</a> •
+  <a href="#credits">Credits</a> •
+  <a href="https://nuclei.projectdiscovery.io/faq/nuclei/">FAQs</a> •
+  <a href="https://discord.gg/projectdiscovery">Join Discord</a>
+</p>
+  We offer security testing services such as [API Pen Testing](https://cyberlegion.io/api-security-testing);
+[Private Bug Bounty](https://cyberlegion.io/bug-bounty-continue-penetration-testing)
