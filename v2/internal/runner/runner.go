@@ -111,6 +111,7 @@ func New(options *types.Options) (*Runner, error) {
 		runner.browser = browser
 	}
 
+	// logic to set the path
 	runner.catalog = disk.NewCatalog(runner.options.TemplatesDirectory)
 
 	var httpclient *retryablehttp.Client
@@ -160,7 +161,7 @@ func New(options *types.Options) (*Runner, error) {
 		}()
 	}
 
-	if (len(options.Templates) == 0 || !options.NewTemplates || (options.TargetsFilePath == "" && !options.Stdin && len(options.Targets) == 0)) && options.UpdateTemplates {
+	if (len(options.Templates) == 0 || !options.NewTemplates || (options.TargetsFilePath == "" && !options.Stdin && len(options.Targets) == 0)) && options.UpdateTemplates != "" {
 		os.Exit(0)
 	}
 
@@ -381,11 +382,11 @@ func (r *Runner) RunEnumeration() error {
 	if templateConfig == nil {
 		templateConfig = &config.Config{}
 	}
+
 	store, err := loader.New(loader.NewConfig(r.options, templateConfig, r.catalog, executerOpts))
 	if err != nil {
 		return errors.Wrap(err, "could not load templates from config")
 	}
-
 	if r.options.Validate {
 		if err := store.ValidateTemplates(); err != nil {
 			return err
@@ -402,21 +403,18 @@ func (r *Runner) RunEnumeration() error {
 	r.displayExecutionInfo(store)
 
 	var results *atomic.Bool
-	if r.options.AutomaticScan {
-		if results, err = r.executeSmartWorkflowInput(executerOpts, store, engine); err != nil {
-			return err
-		}
 
+	if r.options.Cloud {
+		gologger.Info().Msgf("Running scan on cloud with URL %s", r.options.CloudURL)
+		results, err = r.runCloudEnumeration(store)
 	} else {
-		if results, err = r.executeTemplatesInput(store, engine); err != nil {
-			return err
-		}
+		results, err = r.runStandardEnumeration(executerOpts, store, engine)
 	}
 
 	if r.interactsh != nil {
 		matched := r.interactsh.Close()
 		if matched {
-			results.CAS(false, true)
+			results.CompareAndSwap(false, true)
 		}
 	}
 	r.progress.Stop()
@@ -583,7 +581,7 @@ func (r *Runner) readNewTemplatesFile() ([]string, error) {
 	if r.templatesConfig == nil {
 		return nil, nil
 	}
-	additionsFile := filepath.Join(r.templatesConfig.TemplatesDirectory, ".new-additions")
+	additionsFile := filepath.Join(r.getCommunityTemplateDirectory(), ".new-additions")
 	file, err := os.Open(additionsFile)
 	if err != nil {
 		return nil, err
@@ -609,7 +607,7 @@ func (r *Runner) countNewTemplates() int {
 	if r.templatesConfig == nil {
 		return 0
 	}
-	additionsFile := filepath.Join(r.templatesConfig.TemplatesDirectory, ".new-additions")
+	additionsFile := filepath.Join(r.getCommunityTemplateDirectory(), ".new-additions")
 	file, err := os.Open(additionsFile)
 	if err != nil {
 		return 0

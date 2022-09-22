@@ -27,8 +27,9 @@ func ConfigureOptions() error {
 	isFromFileFunc := func(s string) bool {
 		return !isTemplate(s)
 	}
-	goflags.DefaultFileNormalizedStringSliceOptions.IsFromFile = isFromFileFunc
-	goflags.DefaultFileOriginalNormalizedStringSliceOptions.IsFromFile = isFromFileFunc
+	goflags.FileNormalizedStringSliceOptions.IsFromFile = isFromFileFunc
+	goflags.FileStringSliceOptions.IsFromFile = isFromFileFunc
+	goflags.FileCommaSeparatedStringSliceOptions.IsFromFile = isFromFileFunc
 	return nil
 }
 
@@ -116,7 +117,6 @@ func validateOptions(options *types.Options) error {
 		return err
 	}
 	if options.Validate {
-		options.Headless = true // required for correct validation of headless templates
 		validateTemplatePaths(options.TemplatesDirectory, options.Templates, options.Workflows)
 	}
 
