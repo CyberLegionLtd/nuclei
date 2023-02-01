@@ -41,7 +41,7 @@ require (
 	github.com/remeh/sizedwaitgroup v1.0.0
 	github.com/rs/xid v1.4.0
 	github.com/segmentio/ksuid v1.0.4
-	github.com/shirou/gopsutil/v3 v3.22.8
+	github.com/shirou/gopsutil/v3 v3.23.1
 	github.com/spaolacci/murmur3 v1.1.0
 	github.com/spf13/cast v1.5.0
 	github.com/syndtr/goleveldb v1.0.0
@@ -80,7 +80,7 @@ require (
 	github.com/projectdiscovery/tlsx v0.0.7
 	github.com/projectdiscovery/urlutil v0.0.0-20210525140139-b874f06ad921
 	github.com/projectdiscovery/wappalyzergo v0.0.60
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -163,8 +163,8 @@ require (
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/spacemonkeygo/openssl v0.0.0-20181017203307-c2dcc5cca94a // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
-	github.com/tklauser/go-sysconf v0.3.10 // indirect
-	github.com/tklauser/numcpus v0.4.0 // indirect
+	github.com/tklauser/go-sysconf v0.3.11 // indirect
+	github.com/tklauser/numcpus v0.6.0 // indirect
 	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6 // indirect
@@ -182,7 +182,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/exp v0.0.0-20220827204233-334a2380cb91 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
+	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
